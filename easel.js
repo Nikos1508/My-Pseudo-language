@@ -1,4 +1,5 @@
-import { EaselError } from "./stdlib.js"
+import { Parser } from './parser.js'
+import { EaselError } from './stdlib.js'
 import { Lexer } from "./lexer.js"
 import fs from 'fs'
 
@@ -12,7 +13,7 @@ const readFile = location =>
 
 const writeFile = (location, data) =>
     new Promise((resolve, reject) =>
-        fs.write.File(location, data, err => {
+        fs.writeFile(location, data, err => {
             if (err) return reject(err)
             resolve()
         })
@@ -26,20 +27,17 @@ const writeFile = (location, data) =>
     const location = argv[0]
     if (location) {
         const program = await readFile(location)
-        console.log(program)
+
+        const lexer  = new Lexer(program)
+        try {
+            lexer.scanTokens()
+        } catch (err) {
+            console.log(err)
+            process.exit(1)
+        } finally {
+            if (debug) await writeFile('tokens.json', JSON.stringify(lexer.tokens, null, 2))
+        }
     } else {
         //Interactive REPL time
     }
 })()
-
-const program = await readFile(location)
-
-const lexer  = new Lexer(program)
-try {
-    lexer.scanTokens()
-} catch (err) {
-    console.log(err)
-    process.exit(1)
-} finally {
-    if (debug) await writeFile('tokens.json', JSON.stringify(lexer.tokens, null, 2))
-}

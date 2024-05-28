@@ -62,20 +62,17 @@ export class Token {
 import { EaselError } from './stdlib.js'
 
 export class Lexer {
+    
     constructor(program) {
-        this.program = program
-        this.tokens = []
-        this.current = 0
-        this.line = 1
-        this.column = 0
+            this.program = program
+            this.tokens = []
+            this.current = 0
+            this.line = 1
+            this.column = 0
     }
-
     error(msg) {
         throw new EaselError(`Error on ${this.line}:${this.column}: ${msg}`)
     }
-}
-
-class Lexer {
     advance() {
         if (this.current >= this.program.length) return '\0'
         this.column++
@@ -110,7 +107,7 @@ class Lexer {
                     )
                 }
                 case '{': {
-                    return this.token.push(
+                    return this.tokens.push(
                         new Token(TOKENS.LeftBrace, '{', '{', this.line, this.column)
                     )
                 }
@@ -140,7 +137,7 @@ class Lexer {
                     )
                 }
                 case ':': {
-                    return this.token.push(
+                    return this.tokens.push(
                         new Token(TOKENS.Colon, ':', ':', this.line, this.column)
                     )
                 }
@@ -247,7 +244,7 @@ class Lexer {
                         while (isNumber(this.peek()) || (this.peek()  == "." && !number.includes(".")))
                             number.push(this.advance())
                         number = number.join("")
-                        return this.token.push(
+                        return this.tokens.push(
                             new Token(
                                 TOKENS.Number,
                                 number,
@@ -259,10 +256,10 @@ class Lexer {
                     } else if (isChar(char)) {
                         //Identifier or keyword
                         let identifier = [char]
-                        while (isAlphanumeric(this.peek())) indentifier.push(this.advance())
+                        while (isAlphanumeric(this.peek())) identifier.push(this.advance())
                         identifier = identifier.join('')
                         if (Object.keys(KEYWORDS).includes(identifier))
-                            return this.token.push(
+                            return this.tokens.push(
                                 new Token(
                                     TOKENS.Keyword,
                                     identifier,
@@ -272,7 +269,7 @@ class Lexer {
                                 )
                             )
                         else if (identifier == 'true' || identifier == 'false')
-                            return this.token.push(
+                            return this.tokens.push(
                                 new Token(TOKENS.Boolean, identifier, identifier == 'true')
                             )
                         return this.tokens.push(
@@ -283,7 +280,7 @@ class Lexer {
     }
 
     scanTokens() {
-        while (this.peek() != '\0') this.scanTokens()
+        while (this.peek() != '\0') this.scanToken()
         this.tokens.push(new Token(TOKENS.EOF, null, null, this.line, this.column))
         return this.tokens
     }
